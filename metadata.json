@@ -1,0 +1,6 @@
+{
+  "name": "PDF Tools Suite",
+  "description": "Secure, fast, and completely local in-browser PDF tools to merge, split, compress, unlock, and convert your files.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
