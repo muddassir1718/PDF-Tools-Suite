@@ -1,23 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Combine, 
-  Scissors, 
-  Minimize2, 
-  Unlock, 
-  Image as ImageIcon, 
-  FileImage, 
-  Table2,
-  Presentation,
-  ShieldCheck, 
-  Zap, 
-  Sparkles, 
-  Check, 
-  HelpCircle, 
-  ArrowRight,
-  ChevronDown,
-  FileText,
-  FileOutput
+  ShieldCheck, Zap, Sparkles, HelpCircle, ArrowRight, ChevronDown, 
+  Search, Eye, Lock, Scissors, RefreshCw, Layers, Edit, FileText
 } from 'lucide-react';
 import { toolsRegistry } from '../utils/toolRegistry';
 import { AdBanner } from '../components/ui/AdBanner';
@@ -25,88 +10,80 @@ import { SEO } from '../components/ui/SEO';
 
 export const HomePage: React.FC = () => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'convert' | 'organize' | 'optimize' | 'edit' | 'security' | 'ai' | 'ocr'>('all');
 
-  // Split into convert and organize categories locally based on our registry sequence
-  const convertTools = toolsRegistry.slice(0, 8);
-  const organizeTools = toolsRegistry.slice(8);
+  // Filter tools based on search and selected category tab
+  const filteredTools = toolsRegistry.filter(tool => {
+    const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          tool.shortDesc.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (selectedCategory === 'all') return matchesSearch;
+    
+    // Categorize based on registry slices
+    const idx = toolsRegistry.findIndex(t => t.id === tool.id);
+    if (selectedCategory === 'convert' && idx >= 0 && idx < 17) return matchesSearch;
+    if (selectedCategory === 'organize' && idx >= 17 && idx < 27) return matchesSearch;
+    if (selectedCategory === 'optimize' && idx >= 27 && idx < 33) return matchesSearch;
+    if (selectedCategory === 'edit' && idx >= 33 && idx < 42) return matchesSearch;
+    if (selectedCategory === 'security' && idx >= 42 && idx < 50) return matchesSearch;
+    if (selectedCategory === 'ai' && idx >= 50 && idx < 60) return matchesSearch;
+    if (selectedCategory === 'ocr' && idx >= 60) return matchesSearch;
+    
+    return false;
+  });
 
-  const getIcon = (id: string, colorClass = '') => {
-    switch (id) {
-      case 'pdf-to-word':
-        return <FileText className={`w-6 h-6 ${colorClass}`} />;
-      case 'word-to-pdf':
-        return <FileOutput className={`w-6 h-6 ${colorClass}`} />;
-      case 'pdf-to-excel':
-        return <Table2 className={`w-6 h-6 ${colorClass}`} />;
-      case 'pdf-to-ppt':
-        return <Presentation className={`w-6 h-6 ${colorClass}`} />;
-      case 'pdf-to-jpg':
-        return <FileImage className={`w-6 h-6 ${colorClass}`} />;
-      case 'jpg-to-pdf':
-        return <Table2 className={`w-6 h-6 ${colorClass}`} />; // fallback sheet
-      case 'image-to-pdf':
-        return <ImageIcon className={`w-6 h-6 ${colorClass}`} />;
-      case 'pdf-to-text':
-        return <FileText className={`w-6 h-6 ${colorClass}`} />;
-      case 'merge-pdf':
-        return <Combine className={`w-6 h-6 ${colorClass}`} />;
-      case 'split-pdf':
-        return <Scissors className={`w-6 h-6 ${colorClass}`} />;
-      case 'compress-pdf':
-        return <Minimize2 className={`w-6 h-6 ${colorClass}`} />;
-      case 'unlock-pdf':
-        return <Unlock className={`w-6 h-6 ${colorClass}`} />;
-      default:
-        return <FileText className={`w-6 h-6 ${colorClass}`} />;
-    }
-  };
+  const categoriesList = [
+    { id: 'all', name: '✨ All 56 Tools', desc: 'Full workspace suite' },
+    { id: 'convert', name: '🔄 Convert from/to PDF', desc: 'Word, Excel, PPT, JPG' },
+    { id: 'organize', name: '🛠️ Organize PDF', desc: 'Merge, split, extract, delete' },
+    { id: 'optimize', name: '⚡ Optimize PDF', desc: 'Compress, scale, grayscale' },
+    { id: 'edit', name: '📝 Edit PDF', desc: 'Draw, highlight, sign, shapes' },
+    { id: 'security', name: '🔒 Security', desc: 'Passwords protect, redact' },
+    { id: 'ai', name: '🤖 AI powered', desc: 'Summarizers, translation' },
+    { id: 'ocr', name: '👁️ OCR Scanner', desc: 'Extract handwriting & text' },
+  ];
 
   const whyChooseUs = [
     {
-      title: '🔒 Privacy First',
-      desc: 'Files never leave your local device. 100% processing in-browser prevents malicious interceptions or cloud leaks.',
-      icon: <ShieldCheck className="w-5 h-5 text-emerald-600" />,
+      title: '🔒 100% Client-Side Privacy',
+      desc: 'Our converters render bytes directly in your RAM memory using compiled WebAssembly. Files never cross network routes to third party databases.',
+      icon: <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
     },
     {
-      title: '⚡ Fast Processing',
-      desc: 'Leverages WebAssembly compiled with raw CPU power. Zero upload latency, zero queue delays.',
-      icon: <Zap className="w-5 h-5 text-amber-500" />,
+      title: '⚡ Instant CPU Rendering',
+      desc: 'No queue bottlenecks, waiting lists, or lag. File parsing and rendering operations complete with raw hardware processing cycles.',
+      icon: <Zap className="w-5 h-5 text-amber-500" />
     },
     {
-      title: '💯 100% Free',
-      desc: 'No account register, email subscription, or daily conversions thresholds. Unrestricted access.',
-      icon: <Sparkles className="w-5 h-5 text-violet-500" />,
-    },
-    {
-      title: '📱 Responsive Sizing',
-      desc: 'Optimized touch guidelines let you manipulate and download PDFs securely on any phone or iPad.',
-      icon: <Check className="w-5 h-5 text-blue-500" />,
-    },
+      title: '💯 Genuinely Free Sizing',
+      desc: 'No subscription schemes, pricing caps, or card obligations. Easily process large files with complete, unthrottled bandwidth.',
+      icon: <Sparkles className="w-5 h-5 text-purple-500" />
+    }
   ];
 
   const generalFaqs = [
     {
-      q: 'Do you charge for file conversions?',
-      a: 'Absolutely not. This platform delivers 100% free tool operations. We monetize moderately using AdSense slots to cover development and domain maintenance.',
+      q: 'Do files undergo remote storage upload?',
+      a: 'Never. Unlike other online converters, PDFMaster operates offline inside your client variables. Close this webpage tab, and memory structures clear fully.'
     },
     {
-      q: 'Are minor file size limitations enforced?',
-      a: 'There is a helpful alert trigger warning for files larger than 100MB, purely to safeguard physical memory of low-end browsers. However, raw CPU-level conversion can process high pages size limits.',
+      q: 'Are any file dimensions limits enforced?',
+      a: 'We show a prompt alert warning if files exceed 100MB, to prevent standard browser overflows on low-end machines. Otherwise, files are parsed unlimitedly.'
     },
     {
-      q: 'Will my PDF files stay strictly confidential?',
-      a: 'We never see, process, or keep files on external storage. Everything is compiled directly in web page variables. Close the browser tab, and memory clears completely.',
-    },
+      q: 'How does the free AI Toolkit work?',
+      a: 'To safeguard user keys and permit free, unlimited access, we invoke the Google Gemini REST endpoints directly from your browser utilizing the API key you supply.'
+    }
   ];
 
   const schemaMarkup = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    'name': 'PDFTools Suite',
+    'name': 'PDFMaster offline workspace suite',
     'url': 'https://pdf-tools.example.com/',
-    'description': 'Secure, client-side, 100% local browser-based PDF tools to merge, split, compress, unlock, and convert files.',
+    'description': 'Secure, client-side, 100% local browser-based PDF tools to convert, edit, annotate, split, and optimize files.',
     'applicationCategory': 'UtilitiesApplication',
-    'operatingSystem': 'Any',
     'offers': {
       '@type': 'Offer',
       'price': '0',
@@ -114,276 +91,162 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  const getToolTheme = (id: string) => {
-    switch (id) {
-      case 'pdf-to-word':
-        return { iconBox: 'bg-blue-50 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white' };
-      case 'word-to-pdf':
-        return { iconBox: 'bg-violet-50 text-violet-600 dark:bg-violet-950/20 dark:text-violet-400 group-hover:bg-violet-600 group-hover:text-white' };
-      case 'pdf-to-excel':
-        return { iconBox: 'bg-green-50 text-green-600 dark:bg-green-950/25 dark:text-green-400 group-hover:bg-green-600 group-hover:text-white' };
-      case 'pdf-to-ppt':
-        return { iconBox: 'bg-orange-50 text-orange-600 dark:bg-orange-950/20 dark:text-orange-355 group-hover:bg-orange-600 group-hover:text-white' };
-      case 'pdf-to-jpg':
-        return { iconBox: 'bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 group-hover:bg-rose-600 group-hover:text-white' };
-      case 'jpg-to-pdf':
-        return { iconBox: 'bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 group-hover:bg-amber-600 group-hover:text-white' };
-      case 'image-to-pdf':
-        return { iconBox: 'bg-pink-50 text-pink-600 dark:bg-pink-950/20 dark:text-pink-400 group-hover:bg-pink-600 group-hover:text-white' };
-      case 'pdf-to-text':
-        return { iconBox: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/20 dark:text-cyan-400 group-hover:bg-cyan-605 group-hover:text-white' };
-      case 'merge-pdf':
-        return { iconBox: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/20 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white' };
-      case 'split-pdf':
-        return { iconBox: 'bg-red-50 text-red-650 dark:bg-red-950/20 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white' };
-      case 'compress-pdf':
-        return { iconBox: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-450 group-hover:bg-emerald-600 group-hover:text-white' };
-      case 'unlock-pdf':
-        return { iconBox: 'bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-950/20 dark:text-fuchsia-400 group-hover:bg-fuchsia-600 group-hover:text-white' };
-      default:
-        return { iconBox: 'bg-gray-50 text-gray-600 dark:bg-gray-900 dark:text-gray-400 group-hover:bg-blue-600 group-hover:text-white' };
-    }
-  };
-
   return (
-    <div className="font-sans py-4">
-      {/* Dynamic SEO Meta Elements */}
+    <div className="font-sans py-4 space-y-12">
       <SEO 
-        title="Free PDF Tools - Merge, Split, Compress & Convert locally" 
-        description="A secure and extremely fast client-side set of PDF tools. Merge, split, compress, unlock, and convert PDFs or image files right inside your browser without uploading them."
+        title="Secure Off-Grid PDF Tools — Merge, Edit, Convert FREE" 
+        description="Pristine, client-side browser PDF suite. Convert PDF to Word, edit vector blocks, compress, OCR parse, or Chat with PDF using local Gemini API keys safely."
         path="/"
         schema={schemaMarkup}
       />
 
-      {/* Hero Leaderboard Ad Placement */}
-      <AdBanner size="leaderboard" />
-
-      {/* Animated Hero Section */}
-      <section className="text-center py-12 px-4 space-y-4">
-        {/* Subtle Accent Pill */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-950/40 rounded-full border border-blue-100 dark:border-blue-900/30 font-sans">
-          🔒 100% Client-Side Processing
+      {/* Hero Header Presentation */}
+      <section className="text-center space-y-6 max-w-4xl mx-auto px-4 py-8">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-450 border border-emerald-100/10 text-xs font-black animate-pulse">
+          <ShieldCheck className="w-4 h-4" />
+          <span>🔒 Files stay 100% inside your Device</span>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-none">
-          All PDF Tools You Need —{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-500">
-            Free & Fast
+        <h1 className="text-4xl sm:text-6xl font-black text-gray-950 dark:text-white tracking-tight leading-none">
+          Pristine PDF Tools — <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-purple-500">
+            Secure, Local & Offline
           </span>
         </h1>
 
-        <p className="text-gray-550 dark:text-gray-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-          No upload limits. No signup. All processing happens locally in your browser for ultimate privacy and high-speed compilation.
+        <p className="text-sm sm:text-base text-gray-550 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed font-semibold">
+          No signups. No cloud processing queues. Compile, convert, and stamp PDF layers directly on your system with raw WebAssembly compilers.
         </p>
 
-        <div className="pt-4 flex justify-center">
-          <a 
-            href="#tools-grid" 
-            className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all duration-200 cursor-pointer shadow-xs"
-          >
-            Start using tools
-            <ArrowRight className="w-4 h-4" />
-          </a>
+        {/* Global Instant Sandbox Search */}
+        <div className="relative max-w-lg mx-auto shadow-xl rounded-2xl border border-gray-200 dark:border-gray-900 bg-white dark:bg-gray-950 overflow-hidden">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </span>
+          <input
+            type="text"
+            placeholder="Type tool name (e.g., PDF to Word, OCR, Rotate)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3.5 bg-transparent text-sm font-black focus:outline-none focus:ring-0 text-gray-900 dark:text-white"
+          />
         </div>
       </section>
 
-      {/* Tools Grid Section */}
-      <section id="tools-grid" className="py-8 border-t border-gray-100 dark:border-gray-900">
-        
-        {/* CATEGORY 1: Convert PDF Header */}
-        <div className="mb-6 mt-4">
-          <h2 className="text-base sm:text-lg font-black text-gray-955 dark:text-white tracking-tight uppercase flex items-center gap-2">
-            🔄 Convert PDF
-          </h2>
-          <p className="text-[11px] text-gray-450 dark:text-gray-450 mt-1">
-            Reconstruct, parse, and export PDF data elements easily in-browser
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-6 mb-12">
-          {convertTools.map((tool) => {
-            const toolTheme = getToolTheme(tool.id);
-            return (
-              <Link
-                key={tool.id}
-                to={tool.path}
-                className="group p-5 bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-900 rounded-2xl hover:border-blue-500 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-200 flex flex-col justify-between h-full cursor-pointer"
-              >
-                <div className="flex flex-col">
-                  {/* Icon Wrapper box */}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-200 shrink-0 ${toolTheme.iconBox}`}>
-                    {getIcon(tool.id)}
-                  </div>
-
-                  <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-500 transition-colors">
-                    {tool.name}
-                  </h3>
-
-                  <p className="mt-2 text-[11px] text-gray-450 dark:text-gray-400 leading-relaxed">
-                    {tool.shortDesc}
-                  </p>
-                </div>
-
-                <div className="mt-5 flex items-center gap-1.5 text-blue-600 dark:text-blue-500 text-[10px] font-black tracking-wide uppercase opacity-80 group-hover:opacity-100 transition-opacity">
-                  <span>Open Tool</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* CATEGORY 2: Organize PDF Header */}
-        <div className="mb-6 mt-12 border-t border-gray-100 dark:border-gray-900 pt-8">
-          <h2 className="text-base sm:text-lg font-black text-gray-955 dark:text-white tracking-tight uppercase flex items-center gap-2">
-            🛠️ Organize PDF
-          </h2>
-          <p className="text-[11px] text-gray-450 dark:text-gray-450 mt-1">
-            Merge, split, compress, or unlock your PDF records offline
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-6">
-          {organizeTools.map((tool) => {
-            const toolTheme = getToolTheme(tool.id);
-            return (
-              <Link
-                key={tool.id}
-                to={tool.path}
-                className="group p-5 bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-900 rounded-2xl hover:border-blue-500 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-200 flex flex-col justify-between h-full cursor-pointer"
-              >
-                <div className="flex flex-col">
-                  {/* Icon Wrapper box */}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-200 shrink-0 ${toolTheme.iconBox}`}>
-                    {getIcon(tool.id)}
-                  </div>
-
-                  <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-500 transition-colors">
-                    {tool.name}
-                  </h3>
-
-                  <p className="mt-2 text-[11px] text-gray-450 dark:text-gray-400 leading-relaxed">
-                    {tool.shortDesc}
-                  </p>
-                </div>
-
-                <div className="mt-5 flex items-center gap-1.5 text-blue-600 dark:text-blue-500 text-[10px] font-black tracking-wide uppercase opacity-80 group-hover:opacity-100 transition-opacity">
-                  <span>Open Tool</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-
-      </section>
-
-      {/* Why Choose Us & Security trust marks */}
-      <section className="py-12 px-6 bg-gray-50 border border-gray-150/40 dark:bg-gray-950/20 dark:border-gray-900 rounded-3xl my-6">
-        <h2 className="text-center text-sm sm:text-base font-extrabold text-gray-900 dark:text-white tracking-tight mb-8">
-          🔒 Strictly Private. ⚡ High-Speed Browser Engine.
-        </h2>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {whyChooseUs.map((item, idx) => (
-            <div key={idx} className="bg-white dark:bg-gray-950 p-5 rounded-2xl border border-gray-150 dark:border-gray-900">
-              <div className="p-2 bg-gray-50 dark:bg-gray-900 rounded-lg w-fit mb-3">
-                {item.icon}
-              </div>
-              <h3 className="text-[10px] font-bold text-gray-800 dark:text-gray-250 uppercase tracking-wider mb-2">
-                {item.title}
-              </h3>
-              <p className="text-[11px] text-gray-450 dark:text-gray-400 leading-relaxed font-semibold">
-                {item.desc}
-              </p>
-            </div>
+      {/* Category Selection Tabs */}
+      <section className="space-y-6">
+        <div className="flex gap-2 pb-3 overflow-x-auto scrollbar-none border-b border-gray-150 dark:border-gray-900">
+          {categoriesList.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedCategory(tab.id as any)}
+              className={`px-4.5 py-2 rounded-2xl text-xs font-black shrink-0 transition-all cursor-pointer ${selectedCategory === tab.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-gray-955 dark:hover:text-white'}`}
+            >
+              {tab.name}
+            </button>
           ))}
         </div>
+
+        {/* Tools Results Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {filteredTools.map(tool => {
+            const isAi = tool.id.startsWith('ai-');
+            return (
+              <Link
+                key={tool.id}
+                to={tool.path}
+                className="group flex flex-col justify-between p-5 bg-white border border-gray-250 dark:bg-gray-950 dark:border-gray-900/60 rounded-3xl hover:border-blue-500 dark:hover:border-blue-700 hover:shadow-2xl transition-all duration-300 h-full relative overflow-hidden"
+              >
+                {/* AI feature ambient pulse ring */}
+                {isAi && (
+                  <span className="absolute top-0 right-0 bg-purple-600 text-[9px] uppercase font-black text-white px-3 py-1 rounded-bl-xl tracking-widest flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5 shrink-0" />
+                    <span>AI</span>
+                  </span>
+                )}
+
+                <div className="space-y-3">
+                  <div className={`p-2.5 rounded-2xl bg-blue-50/75 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white w-fit transition-colors shrink-0`}>
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xs sm:text-xs font-black text-gray-950 dark:text-white pb-0.5 tracking-tight leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                    {tool.name}
+                  </h3>
+                  <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 leading-normal">
+                    {tool.shortDesc}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1 text-[10px] uppercase font-black text-blue-600 dark:text-blue-450 pt-5 mt-auto group-hover:translate-x-1 transition-transform">
+                  <span>Activate</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </section>
 
-      {/* How it works segment */}
-      <section className="py-12 border-t border-gray-100 dark:border-gray-900">
-        <h2 className="text-center text-sm sm:text-base font-extrabold text-gray-900 dark:text-white tracking-tight mb-8">
-          🛠️ Simple as 1-2-3
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center max-w-4xl mx-auto">
-          <div className="relative">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 border-2 border-white dark:border-gray-950 rounded-full flex items-center justify-center font-bold text-xs text-blue-850 dark:text-blue-300 mx-auto mb-4 relative z-10">
-              1
-            </div>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 mb-1">
-              Select Your File
-            </h3>
-            <p className="text-[11px] text-gray-450 dark:text-gray-400">
-              Drag PDFs or photo files directly into our clean, secure upload areas.
-            </p>
-          </div>
+      {/* Ad placement center */}
+      <AdBanner size="leaderboard" />
 
-          <div className="relative">
-            <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900 border-2 border-white dark:border-gray-950 rounded-full flex items-center justify-center font-bold text-xs text-violet-850 dark:text-violet-300 mx-auto mb-4 relative z-10">
-              2
+      {/* Trust Marks Sections */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-t border-gray-150 dark:border-gray-900">
+        {whyChooseUs.map((item, idx) => (
+          <div key={idx} className="p-6 bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-900 rounded-3xl space-y-3">
+            <div className="p-3 bg-gray-55 dark:bg-gray-900 rounded-2xl w-fit shrink-0">
+              {item.icon}
             </div>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 mb-1">
-              Configure Settings
-            </h3>
-            <p className="text-[11px] text-gray-450 dark:text-gray-400">
-              Arrange order, configure split pages, or specify image formats instantly.
-            </p>
+            <h4 className="text-xs font-black text-gray-950 dark:text-white uppercase tracking-wider">{item.title}</h4>
+            <p className="text-[11px] text-gray-500 leading-relaxed font-semibold">{item.desc}</p>
           </div>
+        ))}
+      </section>
 
-          <div className="relative">
-            <div className="w-10 h-10 bg-fuchsia-100 dark:bg-fuchsia-900 border-2 border-white dark:border-gray-950 rounded-full flex items-center justify-center font-bold text-xs text-fuchsia-850 dark:text-fuchsia-300 mx-auto mb-4 relative z-10">
-              3
-            </div>
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 mb-1">
-              Download Result
-            </h3>
-            <p className="text-[11px] text-gray-450 dark:text-gray-400">
-              Click Convert or Merge to instantly spark direct file downloads.
-            </p>
+      {/* Steps checklist */}
+      <section className="py-6 border-t border-gray-150 dark:border-gray-900 text-center max-w-2xl mx-auto space-y-6">
+        <h3 className="text-sm font-black uppercase tracking-widest text-gray-400">How It Operates</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-1">
+            <div className="text-lg font-black text-blue-600 mb-0.5">01</div>
+            <p className="text-xs font-bold text-gray-800 dark:text-white">Load Asset</p>
+            <p className="text-[10px] text-gray-500 leading-snug">Drag & drop files or clipboard screenshots</p>
+          </div>
+          <div className="space-y-1">
+            <div className="text-lg font-black text-sky-500 mb-0.5">02</div>
+            <p className="text-xs font-bold text-gray-800 dark:text-white">Configure Settings</p>
+            <p className="text-[10px] text-gray-500 leading-snug">Choose scales, edit, or prompt AI modules</p>
+          </div>
+          <div className="space-y-1">
+            <div className="text-lg font-black text-purple-600 mb-0.5">03</div>
+            <p className="text-xs font-bold text-gray-800 dark:text-white">Collect Output</p>
+            <p className="text-[10px] text-gray-500 leading-snug">Direct instant download is saved perfectly</p>
           </div>
         </div>
       </section>
 
-      {/* Mid Page Ad Placement */}
-      <AdBanner size="leaderboard" />
-
-      {/* SEO Faq Accordion Area */}
-      <section className="py-12 border-t border-gray-100 dark:border-gray-900 max-w-3xl mx-auto">
-        <h2 className="text-center text-sm sm:text-base font-extrabold text-gray-900 dark:text-white tracking-tight mb-6">
-          Frequently Asked Questions
-        </h2>
-
+      {/* SEO Faq accordion panel */}
+      <section className="py-6 border-t border-gray-150 dark:border-gray-900 max-w-3xl mx-auto space-y-6">
+        <h3 className="text-center text-sm font-black text-gray-950 dark:text-white tracking-tight">Suite Insights</h3>
         <div className="space-y-3">
-          {generalFaqs.map((item, idx) => (
-            <div 
-              key={idx} 
-              className="border border-gray-200 dark:border-gray-900 rounded-2xl bg-white dark:bg-gray-950 overflow-hidden"
-            >
+          {generalFaqs.map((faq, idx) => (
+            <div key={idx} className="border border-gray-200 dark:border-gray-900 rounded-3xl bg-white dark:bg-gray-950 overflow-hidden">
               <button
                 onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                className="w-full py-4 px-5 flex items-center justify-between text-left font-bold text-xs text-gray-800 dark:text-gray-200 hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors"
-                aria-expanded={activeFaq === idx}
+                className="w-full py-4 px-5 flex items-center justify-between text-left font-bold text-xs text-gray-800 dark:text-gray-200 hover:bg-gray-50/50"
               >
-                <span className="flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4 text-blue-500 shrink-0" />
-                  {item.q}
-                </span>
+                <span>{faq.q}</span>
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${activeFaq === idx ? 'rotate-180' : ''}`} />
               </button>
-
               {activeFaq === idx && (
-                <div className="px-5 pb-5 pt-1 text-xs text-gray-550 dark:text-gray-400 leading-relaxed border-t border-gray-100 dark:border-gray-900">
-                  {item.a}
+                <div className="px-5 pb-5 pt-0.5 text-xs text-gray-500 dark:text-gray-400 font-semibold leading-relaxed border-t border-gray-100 dark:border-gray-900">
+                  {faq.a}
                 </div>
               )}
             </div>
           ))}
         </div>
       </section>
-
-      {/* Bottom Ad Space */}
-      <AdBanner size="leaderboard" />
     </div>
   );
 };
